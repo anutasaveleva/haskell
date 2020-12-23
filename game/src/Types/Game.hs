@@ -1,27 +1,32 @@
 module Types.Game (
+  Color,
+  Role,
   Checker,
-  Cell,
-  Board,
   Player,
   CurrentStep,
   GameState,
   initialState
 ) where
 
-data Checker = White | Black
+data Color = White | Black 
   deriving (Eq,Show,Read,Enum)
 
-
-data Cell = Checker | Empty
+data Role = JustChecker | Queen
   deriving (Eq,Show,Read,Enum)
 
+data Checker = Checker
+  { role :: Role,
+    x :: Integer,
+    -- координата по горизонтали
+    y :: Integer
+    -- координата по вертикали
+  }
+    deriving (Eq, Show,Read)
 
-data Board = Board [[Cell]] 
-             deriving (Eq,Show,Read)
 
 
 data Player = Player
-  { checkersColor :: Checker,      
+  { color :: Color,      
     checkersNumber :: Integer,     
     jumpedOver :: Integer 
   } deriving (Eq,Show,Read)
@@ -29,26 +34,28 @@ data Player = Player
 
 data CurrentStep = CurrentStep 
   { checker :: Checker, 
-    x :: Integer,
-    y :: Integer
+    x_step :: Integer,
+    -- шаг по горизонтали (>0 направо, <0 налево)
+    y_step :: Integer
+    -- шаг по вертикали 
   } deriving (Eq, Show, Read)
 
 
 data GameState = GameState
-  { board :: Board,
+  { board :: [[Maybe Checker]],
     players :: [Player],
     curstep :: CurrentStep
   } deriving (Eq, Show, Read)
 
 n = 8
 
-generateRow = Empty : generateRow 
+generateRow = Nothing : generateRow 
 generateLine = (take n $ generateRow) : generateLine
 generateBoard = take n $ generateLine
 
 initialState :: GameState
 initialState = GameState 
-    { board = Board (generateBoard), 
+    { board = generateBoard, 
       players = [Player White 12 0, Player Black 12 0],
-      curstep = CurrentStep White (-1) (-1)
+      curstep = CurrentStep (Checker JustChecker 0 0) (-1) (-1)
     }
